@@ -1,3 +1,4 @@
+package BanheiroUnissex;
 
 public class Mulher extends Pessoa {
 	
@@ -8,13 +9,13 @@ public class Mulher extends Pessoa {
 	@Override
 	public void run() {
 		banheiro.entrar(this);
-		System.out.println("MULHER #"+ this.id +" usando o banheiro por " + this.tempoNoBanheiro + "segundos");
+		System.out.println("MULHER #"+ this.id +" usando o banheiro por " + this.tempoNoBanheiro + " segundos");
 		try {
 			Thread.sleep(tempoNoBanheiro * 1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		System.out.println(">>> MULHER #"+ this.id +" saindo do banheiro");
-		banheiro.sair(this);
+		banheiro.sair();
 	}
 }

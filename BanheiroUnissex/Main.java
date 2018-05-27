@@ -1,3 +1,5 @@
+package BanheiroUnissex;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -9,10 +11,10 @@ public class Main {
 		ArrayList<Pessoa> threads = new ArrayList<>();
 		
 		for(int i = 0; i < 30; i++){
-			if (rand.nextInt(100) % 2 == 0) {
-				threads.add(new Homem(i, banheiro, (rand.nextInt(5) + 1)));
+			if (rand.nextInt(2) == 0) {
+				threads.add(new Homem(i, banheiro, (rand.nextInt(1) + 1)));
 			} else {
-				threads.add(new Mulher(i, banheiro, (rand.nextInt(5) + 1)));
+				threads.add(new Mulher(i, banheiro, (rand.nextInt(1) + 1)));
 			}
 		}
 		
@@ -29,5 +31,15 @@ public class Main {
 			pessoa.start();
 		}
 		
+		for (Pessoa pessoa : threads) {
+			try {
+				pessoa.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		System.out.println("\n\nTodas as pessoas usaram o banheiro");
 	}
 }

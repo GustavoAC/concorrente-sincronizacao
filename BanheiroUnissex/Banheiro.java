@@ -1,3 +1,5 @@
+package BanheiroUnissex;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -5,32 +7,40 @@ public class Banheiro {
 	
 	private Queue<Pessoa> filaEspera;
 	private final int maxPessoas;
-	private int pessoasUsando = 0;
-	private boolean homemUsando;
+	private MyObject<Integer> pessoasUsando;
+	private MyObject<Boolean> homemUsando;
 	
 	public Banheiro(int maxPessoas) {
 		this.filaEspera = new LinkedList<Pessoa>();
 		this.maxPessoas = maxPessoas;
+		pessoasUsando = new MyObject<Integer>(0);
+		homemUsando = new MyObject<Boolean>(null);
 	}
 
 	public void entrar(Pessoa p) {
-		if (estaVazio()) {
-			synchronized (this) {
-				homemUsando = p instanceof Homem;
-			}
-		}
-		if (temVaga() && pessoaMesmoSexo(p)) {
-			synchronized (this) {
-				pessoasUsando++;
-			}
-		} else {
-			Pessoa pessoa = p;
-			synchronized (pessoa) {
-				synchronized (filaEspera) {
-					filaEspera.add(pessoa);
+		boolean needsToWait = false;
+		
+		synchronized (p) {
+			synchronized (pessoasUsando) {
+				synchronized (homemUsando) {
+					if (estaVazio()) {
+							homemUsando.setValue(p instanceof Homem);
+					}
+	
+					synchronized (filaEspera) {
+						if (temVaga() && pessoaMesmoSexo(p) && filaEspera.isEmpty()) {
+							pessoasUsando.setValue(pessoasUsando.getValue()+1);
+						} else {
+							filaEspera.add(p);
+							needsToWait = true;
+						}
+					}
 				}
+			}
+			
+			if (needsToWait) {
 				try {
-					pessoa.wait();
+					p.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -38,43 +48,55 @@ public class Banheiro {
 		}
 	}
 	
-	public void sair(Pessoa p) {
-		synchronized (this) {
-			pessoasUsando--;
+	public void sair() {
+		synchronized (pessoasUsando) {
+			pessoasUsando.setValue(pessoasUsando.getValue()-1);
 		}
 		
-		Pessoa proxFila = filaEspera.peek();
-		if (proxFila != null && estaVazio()) {
-			synchronized (this) {
-				homemUsando = proxFila instanceof Homem;
-			}
-		}
-
-		while (proxFila != null) {
-			if(pessoaMesmoSexo(proxFila) && temVaga()){
-				synchronized (this) {
-					pessoasUsando++;
-					synchronized (proxFila) {
-						filaEspera.remove().notify();
+		boolean moved = true;
+		
+		synchronized (filaEspera) {
+			synchronized (homemUsando) {
+				synchronized (pessoasUsando) {
+					while (true && moved) {
+						moved = false;
+						Pessoa proxFila = filaEspera.peek();
+						if (proxFila == null) break;
+						synchronized (proxFila) {
+							if (pessoaMesmoSexo(proxFila)) {
+								if (temVaga()) {
+									pessoasUsando.setValue(pessoasUsando.getValue()+1);
+									proxFila.notify();
+									filaEspera.remove();
+									moved = true;
+								}
+							} else {
+								// espera o banheiro esvaziar e toma controle
+								if (estaVazio()) {
+									homemUsando.setValue(proxFila instanceof Homem);
+									pessoasUsando.setValue(pessoasUsando.getValue()+1);
+									proxFila.notify();
+									filaEspera.remove();
+									moved = true;
+								}
+							}
+						}
 					}
 				}
-			} else {
-				break;
 			}
-			proxFila = filaEspera.peek();
 		}
 	}
 	
 	private boolean temVaga() {
-		return pessoasUsando < maxPessoas;
+		return pessoasUsando.getValue() < maxPessoas;
 	}
 	
 	private boolean estaVazio() {
-		return pessoasUsando == 0;
+		return pessoasUsando.getValue() == 0;
 	}
 	
 	private boolean pessoaMesmoSexo(Pessoa p) {
-		return (homemUsando && p instanceof Homem) || (!homemUsando && p instanceof Mulher);
+		return (homemUsando.getValue().booleanValue() && p instanceof Homem) || (!homemUsando.getValue().booleanValue() && p instanceof Mulher);
 	}
 	
 }
