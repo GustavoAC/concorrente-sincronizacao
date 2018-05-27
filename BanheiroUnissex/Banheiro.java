@@ -51,7 +51,7 @@ public class Banheiro {
 		}
 
 		while (proxFila != null) {
-			if(pessoaMesmoSexo(proxFila)){
+			if(pessoaMesmoSexo(proxFila) && temVaga()){
 				synchronized (this) {
 					pessoasUsando++;
 					synchronized (proxFila) {

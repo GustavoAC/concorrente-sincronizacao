@@ -14,7 +14,7 @@ public class Mulher extends Pessoa {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println("MULHER #"+ this.id +" saindo do banheiro");
+		System.out.println(">>> MULHER #"+ this.id +" saindo do banheiro");
 		banheiro.sair(this);
 	}
 }
