@@ -15,15 +15,22 @@ public class Banheiro {
 
 	public void entrar(Pessoa p) {
 		if (estaVazio()) {
-			homemUsando = p instanceof Homem;
+			synchronized (this) {
+				homemUsando = p instanceof Homem;
+			}
 		}
 		if (temVaga() && pessoaMesmoSexo(p)) {
-			pessoasUsando++;
+			synchronized (this) {
+				pessoasUsando++;
+			}
 		} else {
-			synchronized (p) {
-				filaEspera.add(p);
+			Pessoa pessoa = p;
+			synchronized (pessoa) {
+				synchronized (filaEspera) {
+					filaEspera.add(pessoa);
+				}
 				try {
-					p.wait();
+					pessoa.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -32,22 +39,24 @@ public class Banheiro {
 	}
 	
 	public void sair(Pessoa p) {
-		pessoasUsando--;
+		synchronized (this) {
+			pessoasUsando--;
+		}
+		
 		Pessoa proxFila = filaEspera.peek();
-		while (proxFila != null) {
-//				System.out.println("Entrei!!!");
-			if(estaVazio()){
-				homemUsando = p instanceof Homem;
-				synchronized (proxFila) {
-					filaEspera.remove().notify();
-				}
-				break;
+		if (proxFila != null && estaVazio()) {
+			synchronized (this) {
+				homemUsando = proxFila instanceof Homem;
 			}
-			
+		}
+
+		while (proxFila != null) {
 			if(pessoaMesmoSexo(proxFila)){
-				pessoasUsando++;
-				synchronized (proxFila) {
-					filaEspera.remove().notify();
+				synchronized (this) {
+					pessoasUsando++;
+					synchronized (proxFila) {
+						filaEspera.remove().notify();
+					}
 				}
 			} else {
 				break;
