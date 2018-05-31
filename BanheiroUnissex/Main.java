@@ -12,9 +12,9 @@ public class Main {
 		
 		for(int i = 0; i < 30; i++){
 			if (rand.nextInt(2) == 0) {
-				threads.add(new Homem(i, banheiro, (rand.nextInt(1) + 1)));
+				threads.add(new Homem(i, banheiro, (rand.nextInt(3) + 1)));
 			} else {
-				threads.add(new Mulher(i, banheiro, (rand.nextInt(1) + 1)));
+				threads.add(new Mulher(i, banheiro, (rand.nextInt(3) + 1)));
 			}
 		}
 		

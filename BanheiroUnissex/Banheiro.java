@@ -30,6 +30,7 @@ public class Banheiro {
 					synchronized (filaEspera) {
 						if (temVaga() && pessoaMesmoSexo(p) && filaEspera.isEmpty()) {
 							pessoasUsando.setValue(pessoasUsando.getValue()+1);
+							System.out.println("B- Alguém entrou, " + pessoasUsando.getValue() + " pessoas usando o banheiro");
 						} else {
 							filaEspera.add(p);
 							needsToWait = true;
@@ -51,6 +52,7 @@ public class Banheiro {
 	public void sair() {
 		synchronized (pessoasUsando) {
 			pessoasUsando.setValue(pessoasUsando.getValue()-1);
+			System.out.println("B- Alguém saiu, " + pessoasUsando.getValue() + " pessoas usando o banheiro");
 		}
 		
 		boolean moved = true;
@@ -66,6 +68,7 @@ public class Banheiro {
 							if (pessoaMesmoSexo(proxFila)) {
 								if (temVaga()) {
 									pessoasUsando.setValue(pessoasUsando.getValue()+1);
+									System.out.println("B- Alguém entrou, " + pessoasUsando.getValue() + " pessoas usando o banheiro");
 									proxFila.notify();
 									filaEspera.remove();
 									moved = true;
@@ -75,6 +78,7 @@ public class Banheiro {
 								if (estaVazio()) {
 									homemUsando.setValue(proxFila instanceof Homem);
 									pessoasUsando.setValue(pessoasUsando.getValue()+1);
+									System.out.println("B- Alguém entrou, " + pessoasUsando.getValue() + " pessoas usando o banheiro");
 									proxFila.notify();
 									filaEspera.remove();
 									moved = true;

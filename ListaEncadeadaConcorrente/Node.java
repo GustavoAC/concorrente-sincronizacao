@@ -1,3 +1,4 @@
+package ListaEncadeadaConcorrente;
 
 public class Node<T> {
 	private T value;
