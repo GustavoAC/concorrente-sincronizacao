@@ -55,11 +55,11 @@ public class ConcLinkedList<T> {
 		headNode = new Node<T>();
 		headNode.setNextNode(tailSentinelNode);
 		tailNode = headNode;
-		searchLock = new Semaphore(1);
-		insertLock = new Semaphore(1);
-		removeLock = new Semaphore(1);
-		searchPrivLock = new Semaphore(1);
-		activeSearchesLock = new Semaphore(1);
+		searchLock = new Semaphore(1, true);
+		insertLock = new Semaphore(1, true);
+		removeLock = new Semaphore(1, true);
+		searchPrivLock = new Semaphore(1, true);
+		activeSearchesLock = new Semaphore(1, true);
 		
 		activeSearches = 0;
 		currentId = 1;
